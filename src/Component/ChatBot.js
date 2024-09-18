@@ -235,6 +235,23 @@ const ChatBot = () => {
   };
 
   const handleSubmit = () => {
+    // Clear all relevant state variables
+    setUploadedFiles([]);
+    setExtractedText([]);
+    setErrorMessage('');
+    setSearchQuery('');
+    setSearchHistory({});
+    setActiveFileIndex(null);
+    setActiveFileName('');
+    setShowPopup(false);
+    setHistoryFiles([]);
+
+    // Clear local storage
+    localStorage.removeItem('uploadedFiles');
+    localStorage.removeItem('searchHistory');
+    localStorage.removeItem('activeFileName');
+
+    // Navigate to the home page
     navigate('/');
   };
 
