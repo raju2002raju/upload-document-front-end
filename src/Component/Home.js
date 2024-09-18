@@ -22,7 +22,7 @@ const Home = () => {
   const [error, setError] = useState(null);
   const [showPopup, setShowPopup] = useState();
 
-  const baseUrl = 'http://localhost:8080';
+  const baseUrl = 'https://upload-document-back-end.onrender.com';
   const navigate = useNavigate();
   const getFileName = localStorage.getItem('activeFileName')
   const fileName = activeFileName ? activeFileName : getFileName;
@@ -298,6 +298,14 @@ const Home = () => {
       default:
         return './Images/default_file_icon.png';
     }
+  };
+
+  const truncateFileName = (fileName, maxLength = 20) => {
+    if (fileName.length <= maxLength) return fileName;
+    const extension = fileName.split('.').pop();
+    const nameWithoutExtension = fileName.slice(0, fileName.lastIndexOf('.'));
+    const truncatedName = nameWithoutExtension.slice(0, maxLength - 5 - extension.length) + '...';
+    return truncatedName + '.' + extension;
   };
 
   return (

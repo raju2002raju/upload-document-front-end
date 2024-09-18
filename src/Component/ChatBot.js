@@ -7,9 +7,7 @@ import mammoth from 'mammoth';
 import ChatHistory from './ChatHistory';
 import { v4 as uuidv4 } from 'uuid';
 
-
 const ChatBot = () => {
-
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [extractedText, setExtractedText] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
@@ -23,10 +21,9 @@ const ChatBot = () => {
   const [error, setError] = useState(null);
   const [showPopup, setShowPopup] = useState();
   const isButtonDisabled = extractedText.length === 0;
-  
-  
+  const [historyFiles, setHistoryFiles] = useState([]);
 
-  const baseUrl = 'http://localhost:8080';
+  const baseUrl = 'https://upload-document-back-end.onrender.com';
   const navigate = useNavigate();
   const getFileName = localStorage.getItem('activeFileName')
   const fileName = activeFileName ? activeFileName : getFileName;
@@ -55,6 +52,8 @@ const ChatBot = () => {
     setShowPopup(true);
   }
 
+  
+
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -63,25 +62,30 @@ const ChatBot = () => {
     await extractText(file);
     const formData = new FormData();
     formData.append('file', file);
-
+  
     try {
       const response = await axios.post(`${baseUrl}/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-
+  
       const newExtractedText = response.data.paragraphs;
+  
+      if (!newExtractedText || newExtractedText.length === 0) {
+        alert("The uploaded file is empty or doesn't contain any readable text. Please upload a file with content.");
+        setErrorMessage('Uploaded file is empty or contains no readable text.');
+        return;
+      }
+  
       setExtractedText(newExtractedText);
-
+  
       const newFile = { file, uploadTime, extractedText: newExtractedText };
       setUploadedFiles(prevFiles => [...prevFiles, newFile]);
       setActiveFileIndex(uploadedFiles.length);
       setActiveFileName(file.name);
-      console.log(file.name)
-      setSearchHistory(prevHistory => ({
-        ...prevHistory,
-        [file.name]: []
-      }));
-
+      console.log(file.name);
+  
+      setShowPopup(false);
+  
       setErrorMessage('');
     } catch (error) {
       setErrorMessage('Error uploading the file. Please try again later.');
@@ -180,7 +184,7 @@ const ChatBot = () => {
           answer: response.data.answer,
           extractedText: extractedText
         });
-        console.log('extract text', extractedText )
+        console.log('extract text', extractedText)
 
         setSearchQuery('');
         setErrorMessage('');
@@ -256,30 +260,67 @@ const ChatBot = () => {
     }
   };
 
-  const handleHistory = (() => {
-    const fetchChatHistory = async () => {
-      try {
-        const response = await axios.get(`${baseUrl}/get-filename-history`);
+  const handleHistory = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/get-filename-history`);
+      setHistoryFiles(response.data);
+    } catch (err) {
+      console.error(err);
+      setError('Error fetching chat history.');
+    }
+  };
 
-        setFiles(response.data);
-      } catch (err) {
-        console.error(err);
-        setError('Error fetching chat history.');
+  const handleHistoryFileClick = async (file) => {
+    setActiveFileName(file.name);
+    localStorage.setItem('activeFileName', file.name);
+  
+    try {
+      let extractedTextToSend;
+  
+      if (Array.isArray(file.extractedText)) {
+        // If it's an array, join it into a single string
+        extractedTextToSend = file.extractedText.join('\n\n');
+      } else if (typeof file.extractedText === 'string') {
+        // If it's already a string, use it as is
+        extractedTextToSend = file.extractedText;
+      } else {
+        throw new Error('Extracted text is neither an array nor a string');
       }
-    };
-
-    fetchChatHistory();
-  });
+  
+      console.log('Sending extracted text:', extractedTextToSend);
+  
+      // Send the extracted text to the /upload endpoint
+      const response = await axios.post(`${baseUrl}/api`, { extractedText: extractedTextToSend });
+  
+      console.log('Upload response:', response.data);
+  
+      if (response.data && response.data.paragraphs) {
+        setExtractedText(response.data.paragraphs);
+      }
+    } catch (error) {
+      console.error('Error uploading file content:', error);
+      setErrorMessage('Error processing file content. Please try again.');
+    }
+  };
 
   const handlFileName = (file) => {
     localStorage.setItem('activeFileName', file.name);
   };
 
-  const uniqueId = uuidv4(); 
+  const uniqueId = uuidv4();
 
   const navigateToChatbot = () => {
-    navigate(`/chathistory/${uniqueId}`);  
+    navigate(`/chathistory/${uniqueId}`);
   };
+
+  const truncateFileName = (fileName, maxLength = 20) => {
+    if (fileName.length <= maxLength) return fileName;
+    const extension = fileName.split('.').pop();
+    const nameWithoutExtension = fileName.slice(0, fileName.lastIndexOf('.'));
+    const truncatedName = nameWithoutExtension.slice(0, maxLength - 5 - extension.length) + '...';
+    return truncatedName ;
+  };
+
 
   const getFileIcon = (fileType) => {
     switch (fileType) {
@@ -299,92 +340,99 @@ const ChatBot = () => {
 
   return (
     <div className="main-container">
-      <div className='d-flex'>
-        <div className='file_upload_container'>
-          <div className='w-525'><p>UPLOAD DOCUMENT</p>
-          </div>
-          <div className='w-525-bg'></div>
-          <div className='w-84'>
-           <div className='chat-history-hover'>
-           <img
-              onClick={() => {
-                handleHistory();
-                handleShowPopup();
-              }}
-              src='../Images/chatHistory.png'
-              alt='Frame'
-            />
-            <p className='chat-history-p'>Chat History</p>
-           </div>
-            <div className='hover-new'><img onClick={handleSubmit} src='../Images/new-chat.png' />
-              <p className='new-chat-hover'>New Chat</p>
-            </div>
-          </div>
-          <div className='p-5'>
-            <input
-              type="file"
-              onChange={handleFileUpload}
-              style={{ display: 'none' }}
-              id="fileInput"
-            />
-            <div className='hover-upload-document'>
-           <img src='../Images/uploadfile.png' alt="Attachment" onClick={() => document.getElementById('fileInput').click()} />
-           <p className='upload-document'>Upload Document</p>
-           </div>
-          </div>
+    <div className='d-flex'>
+    <div className='file_upload_container'>
+      <div className='w-525'><p>UPLOAD DOCUMENT</p>
+      </div>
+      <div className='w-525-bg'></div>
+      <div className='w-84'>
+        <div className='chat-history-hover' >
+          <img
+            onClick={() => {
+              handleHistory();
+              handleShowPopup();
+            }}
+            src='../Images/chatHistory.png'
+            alt='Frame'
+          />
+          <p className='chat-history-p'>Chat History</p>
         </div>
-        <div className='d-flex-j-c'>
+        <div className='hover-new'><img onClick={handleSubmit} src='../Images/new-chat.png' />
+          <p className='new-chat-hover'>New Chat</p>
+        </div>
+      </div>
+      <div className='p-5'>
+        <input
+          type="file"
+          onChange={handleFileUpload}
+          style={{ display: 'none' }}
+          id="fileInput"
+        />
+        <div className='hover-upload-document'>
+          <img
+            src='../Images/uploadfile.png'
+            alt="Attachment"
+            onClick={() => document.getElementById('fileInput').click()}
+          />
+          <p className='upload-document'>
+          Upload Document
+          </p>
+        </div>
+      </div>
+    </div>
+    <div className='d-flex-j-c'>
+      <div>
+        <div className='d-flex'>
+          <img src='../Images/pdf (1).png' alt="PDF Icon" />
           <div>
-            <div className='d-flex'>
-              <img src='../Images/pdf (1).png' alt="PDF Icon" />
-              <div>
-                <p>{fileName}</p>
-                <p className='chat-now'>Chat Now</p>
-              </div>
-            </div>
-          </div>
-          <div>
-            <img src='../Images/message.png' alt="Message" className='message-icon chat-history' />
+            <p>{fileName ? truncateFileName(fileName) : 'Test'}</p>
+            <p className='chat-now'>Chat Now</p>
           </div>
         </div>
       </div>
+      <div>
+        <img src='../Images/message.png' alt="Message" className='message-icon chat-history' />
+      </div>
+    </div>
+  </div>
+      
       <div className='search_container'>
         <div className='d-flex-justify-space-b'>
           {showPopup && (
             <div className='file-name'>
-            {error && <div>{error}</div>}
-            <div className='close-popup-div'>
-              <img
-                src='../Images/close-popup.png'
-                alt="Close Popup"
-                onClick={handleClosePopup}
-                className="close-popup-icon"
-              />
+              {error && <div>{error}</div>}
+              <div className='close-popup-div'>
+                <img
+                  src='../Images/close-popup.png'
+                  alt="Close Popup"
+                  onClick={handleClosePopup}
+                  className="close-popup-icon"/>
+              </div>
+              {historyFiles && historyFiles.length > 0 ? (
+                historyFiles.map((file) => (
+                  <div
+                    key={file._id}
+                    className='file1-w-280'
+                    onClick={() => handleHistoryFileClick(file)}
+                  >
+                    <div className='blue-div'>
+                      <img className='pdf-image' src='../Images/pdf2.png' alt="File Icon" />
+                    </div>
+                    <div>
+                      <p>{file.name ? truncateFileName(file.name) : 'Test'}</p>
+                    </div>
+                    <div className='d-flex-date-delt'>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div>No files available</div>
+              )}
             </div>
-          
-            {files && files.length > 0 ? (
-              files.map((file) => (
-                <div key={file._id} onClick={() => {
-                  handleHistory();
-                  handleClosePopup();
-                  handlFileName(file);
-                  navigateToChatbot(file._id);
-                }}>
-                  <div className='chat-history-file-name'>{file.name}</div>
-                </div>
-              ))
-              
-            ) : (
-              <div>No files available</div>
-            )}
-          </div>
-          
           )}
 
           <div>
-          </div>
-          <div>
-            
+
             {uploadedFiles.map((uploadedFile, index) => {
               const file = uploadedFile.file;
               const uploadTime = new Date(uploadedFile.uploadTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -392,14 +440,12 @@ const ChatBot = () => {
                 <div>
                   <div
                     key={index}
-                    className={`file1 ${activeFileIndex === index ? 'active' : ''}`}
-                  >
+                    className={`file1 ${activeFileIndex === index ? 'active' : ''}`}>
                     <div className='blue-div'>
                       <img className='pdf-image' src={getFileIcon(file.type)} alt="File Icon" />
                     </div>
                     <div onClick={() => handleFileClick(index)}>
-                      <p>{file.name}  {`${(file.size / 1024).toFixed(2)} KB`} </p>
-                      <p>Hey it was nice talking to you..</p>
+                      <p>{file.name ? truncateFileName(file.name) : 'Test'}</p>
                     </div>
                     <div className='d-flex-date-delt'>
                       <p>{uploadTime}</p>
@@ -409,14 +455,10 @@ const ChatBot = () => {
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDeleteFile(index);
-                        }}
-                      />
+                        }}/>
                     </div>
                   </div>
-
-
                 </div>
-
               );
             })}
           </div>
@@ -437,7 +479,6 @@ const ChatBot = () => {
                           <div><div className='chat-answer'>{item.answer}</div></div>
                         </div>
                       ))}
-
                   </div>
                 )}
               </div>
@@ -451,26 +492,25 @@ const ChatBot = () => {
                       onKeyPress={handleKeyPress}
                       placeholder="Type Your Message"
                     />
-         <div style={{ color:'red', textAlign:'center' }}>
-      {isLoading ? (
-        <div className="loading-spinner">Processing...</div>
-      ) : (
-        <>
-          {!isButtonDisabled ? (
-            <img
-              onClick={handleSearch}
-              src="../Images/send-btn.png"
-              alt="Send"
-              style={{ cursor: 'pointer' }}
-            />
-          ) : (
-            <div className="not-allowed-message" >
-              Not Allowed
-            </div>
-          )}
-        </>
-      )}
-    </div>
+                    <div style={{ color: 'gray', textAlign: 'center' }}>
+                      {isLoading ? (
+                        <div className="loading-spinner">Processing...</div>
+                      ) : (
+                        <>
+                          {!isButtonDisabled ? (
+                            <img
+                              onClick={handleSearch}
+                              src="../Images/send-btn.png"
+                              alt="Send"
+                              style={{ cursor: 'pointer' }}/>
+                          ) : (
+                            <div className="not-allowed-message" >
+                              Disable
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
