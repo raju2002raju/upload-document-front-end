@@ -9,7 +9,7 @@ const ChatHistory = ({ fileName }) => {
   useEffect(() => {
     const fetchChatHistory = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/get-chat-history/${fileName}`);
+        const response = await axios.get(`https://upload-document-back-end.onrender.com/get-chat-history/${fileName}`);
         setChatHistory(response.data.chatHistory);
         setLoading(false);
       } catch (err) {
@@ -36,7 +36,6 @@ const ChatHistory = ({ fileName }) => {
                 <div>
                 <div className='chat-answer'>{chat.answer}</div>
                 </div>
-              {/* <strong>Timestamp:</strong> {new Date(chat.timestamp).toLocaleString()} */}
             </div>
           ))}
         </div>

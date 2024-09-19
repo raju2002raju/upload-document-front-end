@@ -1,6 +1,7 @@
 *{
     margin: 0px;
     padding: 0px;
+    box-sizing: border-box;
 }
 
 .background-image{
@@ -146,7 +147,7 @@
   .w-525-bg{
     background: #007bff;
     width: 600px;
-    height: 60px;
+    height: 50px;
   }
 
   .w-84{
@@ -160,7 +161,7 @@
 
   .p-5{
     position: absolute;
-    top: 11px;
+    top: 7px;
     left: 550px;
   }
 
@@ -174,7 +175,7 @@
   .search_container{
     width: 100%;
     background: #F1F6FE;
-    min-height: 84vh;
+    min-height: 86vh;
     height: 100%;
     display: flex;
     justify-content: center;
@@ -238,21 +239,34 @@
     transition: background-color 0.3s ease;
     display: inline-grid;
     grid-template-columns: 1fr 1fr 1fr;
-    padding: 0px 10px;
+    padding: 0px 12px 0px 0px
   }
 
-  .file1-w-280{
-    width: 280px;
-    height: 100px;
+  .file1-w-280 {
+    width: 250px;
+    height: 30px;
     background: #fff;
     border-radius: 10px;
     display: flex;
     align-items: center;
     gap: 10px;
-    margin: 20px 0px;
+    margin: 12px 0px;
     box-shadow: 0 10px 10px rgb(0 0 0 / 0.2);
     cursor: pointer;
-  }
+
+}
+
+.pdf-image-h{
+  width: 17px;
+  margin: 4px;
+}
+
+.blue-div-h {
+  width: 29px;
+  height: 30px;
+  background: #007bff;
+  border-radius: 10px 26px 55px 10px;
+}
 
   .blue-div{
     width: 80px;
@@ -343,8 +357,14 @@
 .file-name{
   background: #000;
   width: 300px;
-  height: 578px;
-  padding: 20px;
+  padding: 20px 20px 10px 20px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: absolute;
+  left: 0;
+  min-height: 86%;
+  max-height: 100%;
+  height: auto;
 }
 
 .chat-history-file-name{
@@ -481,3 +501,345 @@
   opacity: 1;
   transition: opacity 0.5s ease;
 }
+
+.mobile-p-5{
+  display: none;
+}
+
+.mobile-menu{
+  display: none;
+}
+
+.mobile-d-flex-j-c{
+  display: none;
+}
+
+.close-popup-div-m{
+  display: none;
+}
+
+.m-document-upload{
+  display: none;
+}
+
+.d-document-upload{
+  display: block;
+ }
+
+ .nav-file{
+  display: none;
+ }
+
+
+
+
+/*  Mobile Vesrion */
+
+
+
+@media (max-width: 767px) {
+  /* General */
+  .background-image {
+    height: 40%;
+  }
+
+
+  .close-popup-div-m{
+    display: block;
+  }
+  
+ .d-document-upload{
+  display: none;
+ }
+
+ .m-document-upload{
+  display: block;
+}
+
+.nav-file{
+  display: block;
+}
+
+  .d-flex-j-c{
+    display: none;
+
+  }
+
+  .p-5{
+ display: none;
+}
+
+.message-icon{
+  display: none;
+}
+
+.mobile-menu{
+  display: block;
+}
+
+.mobile-p-5{
+  display: block;
+}
+
+.w-84{
+  display: none;
+}
+
+
+  
+
+  .container {
+    flex-direction: column;
+    margin-top: 20px;
+  }
+
+  .file-upload-div {
+    width: 90%;
+    height: auto;
+    margin: 20px;
+  }
+
+  /* File Upload */
+  .upload-container {
+    max-width: 90%;
+    margin: 0 auto;
+  }
+
+  .drag-file-area {
+    padding: 20px;
+    margin: 10px;
+  }
+
+  .upload-icon {
+    font-size: 40px;
+  }
+
+  .dynamic-message {
+    font-size: 16px;
+  }
+
+  .upload-button {
+    width: 100%;
+  }
+
+  .file-info {
+    width: 100%;
+    margin: 10px;
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .file_upload_container {
+    width: 100%;
+  }
+
+  .w-525 {
+    width: 100%;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+  }
+
+  .w-525 p {
+    font-size: 20px;
+    margin-left: 0px;
+  }
+
+  .w-525-bg {
+    width: 100%;
+    height: 35px;
+  }
+
+  .w-84 {
+    position: relative;
+    top: 0;
+    gap: 10px;
+  }
+
+  .d-flex {
+    gap: 10px;
+    display: block;
+  }
+
+  .mobile-d-flex{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+ 
+
+  .search-input {
+    width: 90%;
+    margin: 10px 0;
+    padding: 0px 7px;
+  }
+
+  .search-input input {
+    margin-left: 10px;
+  }
+
+  /* File List */
+  .file1, .file1-w-280 {
+    width: 100%;
+    margin: 10px 0;
+    
+  }
+
+  .file1{
+    height: 60px;
+    padding: 0px;
+    gap: 0px;
+  }
+
+  .file1.active p {
+    color: white;
+    font-size: 12px;
+  }
+
+  /* Chat History */
+  .pdf-chat-history {
+    width: 100%;
+    grid-template-columns: 0.7fr;
+    justify-content: center;
+}
+
+.s-align{
+  display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+  .chat-question, .chat-answer {
+    margin-top: 10px;
+    padding: 15px;
+  }
+
+  /* History Popup */
+  .file-name {
+    width: 60%;
+    position: absolute;
+    left: 0;
+    top: 75px;
+  }
+
+  /* Popup Hover */
+  .new-chat-hover, .upload-document, .chat-history-p {
+    width: 200px;
+  }
+
+  /* search Input */
+  .d-flex-justify-space-b{
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .upload-document {
+    position: absolute;
+    top: 50px;
+    left: 150px;
+    background: #000;
+    color: #fff;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    border-radius: 10px;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    right: 16px;
+}
+
+.upload-document::before{
+  content: "";
+  position: absolute;
+  left: 75%;
+  bottom: 95%;
+  transform: translate(-50%);
+  border: 15px solid;
+  border-color: #000 #0000 #0000 #0000;
+  transform: rotate(180deg);
+}
+
+.mobile-new-chat-btn{
+  display: flex;
+        width: 195px;
+        padding: 14px;
+        justify-content: start;
+        align-items: center;
+        gap: 17px;
+        border-radius: 5px;
+        border: none;
+        background: #fff;
+        color: #163366;
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 20px;
+}
+
+.mobile-search-pdf-name{
+  height: 100vh;
+  width: 100%;
+  background: #f1f6fe;
+  display: flex;
+  justify-content: space-around;
+  flex-direction: column;
+  align-items: center;
+}
+
+.search_container{
+  display: block;
+  height: 0;
+
+}
+
+.mobile-d-flex-j-c{
+  display:block;
+}
+
+.Document-upload{
+  background: #000;
+    position: absolute;
+    width: 60%;
+    left: 0;
+    top: 75px;
+    padding: 7px;
+    height: 100%;
+  
+}
+
+
+.file1.active {
+  height: 60px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  background-color: #007bff;
+  color: #fff;
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 0px 10px;
+}
+
+.blue-div{
+  width: 45px;
+  height: 60px;
+  background: #007bff;
+  border-radius: 10px 26px 55px 10px;
+}
+
+.pdf-image {
+  width: 30px;
+  margin: 5px;
+}
+
+.d-flex-date-delt{
+  gap: 7px;
+}
+
+
+
+}
+
+
