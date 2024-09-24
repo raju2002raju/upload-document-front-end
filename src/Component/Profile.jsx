@@ -87,7 +87,7 @@ const Profile = () => {
      <div className='d-flex'>
     <div className='file_upload_container'>
       <div className='w-525 profile-upload-document'>
-        <img className='mobile-menu' src='../Images/mobile-menu.png' />
+      <img onClick={handleBackClick} src='../Images/profile-m-back.png' alt="PDF Icon" />
         <p>UPLOAD DOCUMENT</p>
         <div className='mobile-p-5'>
           <input
@@ -97,11 +97,7 @@ const Profile = () => {
             id="fileInput"
           />
           <div className='hover-upload-document'>
-            <img
-              src='../Images/uploadfile.png'
-              alt="Attachment"
-            
-            />
+          
             <p className='upload-document'>
               Upload Document
             </p>

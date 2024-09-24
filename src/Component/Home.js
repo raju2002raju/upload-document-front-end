@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 const Home = () => {
   return (
     <div className='main-container'>
-       <div className='d-flex'>
+       <div className='d-flex m-d-flex'>
     <div className='file_upload_container'>
       <div className='w-525 profile-upload-document'>  
         <p>UPLOAD DOCUMENT</p>

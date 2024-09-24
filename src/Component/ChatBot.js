@@ -652,7 +652,7 @@ const ChatBot = () => {
                       <button className='mobile-new-chat-btn' onClick={handleHistory}><img src='../Images/mobile-history-chat.png' style={{ width: '20px' }} /> Chat History</button>
                       <button className='mobile-new-chat-btn' onClick={handleShowUpload}><img src='../Images/uploadedDocument.png' style={{ width: '20px' }} /> Upload Document</button>
                       <button className='mobile-new-chat-btn' onClick={() => {navigate('/profile-update')}}><img src='../Images/profile-icon.png'/>Profile Edit</button>
-                      <button className='mobile-new-chat-btn'><img src='../Images/logout-icon.png'/>Log Out</button>
+                      <button className='mobile-new-chat-btn' onClick={handleLogout}><img src='../Images/logout-icon.png'/>Log Out</button>
                     </div>
 
                   </div>
