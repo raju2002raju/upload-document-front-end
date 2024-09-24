@@ -6,6 +6,8 @@ import * as pdfjsLib from 'pdfjs-dist/webpack';
 import mammoth from 'mammoth';
 import ChatHistory from './ChatHistory';
 import { v4 as uuidv4 } from 'uuid';
+import pica from 'pica';
+// import pdfjsLib from 'pdfjs-dist';
 
 const ChatBot = () => {
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -17,18 +19,39 @@ const ChatBot = () => {
   const [activeFileIndex, setActiveFileIndex] = useState(null);
   const [activeFileName, setActiveFileName] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [files, setFiles] = useState([]);
   const [error, setError] = useState(null);
   const [showPopup, setShowPopup] = useState();
   const isButtonDisabled = extractedText.length === 0;
   const [historyFiles, setHistoryFiles] = useState([]);
   const [isShowPopup, setIsShowPopup] = useState();
   const [showUpload, setShowUpload] = useState();
+  const [userData, setUserData] = useState(null);
+  const [showUserInfo, setShowUserInfo] = useState(false);
 
   const baseUrl = 'https://upload-document-back-end.onrender.com';
+  const CHUNK_SIZE = 1024 * 1024;
+  
   const navigate = useNavigate();
   const getFileName = localStorage.getItem('activeFileName')
   const fileName = activeFileName ? activeFileName : getFileName;
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+        try {
+            const email = localStorage.getItem('userEmail');
+            const response = await axios.get(`${baseUrl}/auth/user`, { 
+                headers: {
+                    'user-email': email 
+                }
+             });
+            setUserData(response.data[0]);  
+        } catch (error) {
+            console.error("Error fetching user data:", error);
+        }
+    };
+
+    fetchUserData();
+}, []);
 
   useEffect(() => {
     const storedFiles = JSON.parse(localStorage.getItem('uploadedFiles')) || [];
@@ -55,47 +78,96 @@ const ChatBot = () => {
     setShowPopup(true);
   }
 
+  const userEmail = localStorage.getItem('userEmail')
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
+  
     setIsLoading(true);
     const uploadTime = new Date();
-    await extractText(file);
     const formData = new FormData();
     formData.append('file', file);
-
+    formData.append('userEmail', localStorage.getItem('userEmail'));
+  
     try {
+      // Step 1: Try extracting text first
       const response = await axios.post(`${baseUrl}/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-
+  
+      setActiveFileName(file.name);
+  
       const newExtractedText = response.data.paragraphs;
-
-      if (!newExtractedText || newExtractedText.length === 0) {
-        alert("The uploaded file is empty or doesn't contain any readable text. Please upload a file with content.");
-        setErrorMessage('Uploaded file is empty or contains no readable text.');
-        return;
-      }
-
       setExtractedText(newExtractedText);
-
+  
       const newFile = { file, uploadTime, extractedText: newExtractedText };
-      setUploadedFiles(prevFiles => [...prevFiles, newFile]);
+      setUploadedFiles((prevFiles) => [...prevFiles, newFile]);
       setActiveFileIndex(uploadedFiles.length);
       setActiveFileName(file.name);
-      console.log(file.name);
-
-
-      // Close the popup if it's open
-      setShowPopup(false);
-
-      setErrorMessage('');
+      setSearchHistory((prevHistory) => ({
+        ...prevHistory,
+        [file.name]: [],
+      }));
+  
+  
+      if (!newExtractedText || newExtractedText.length === 0) {
+        alert("The uploaded PDF file is empty or doesn't contain any readable text. Converting to images for further processing...");
+  
+        const pdfImages = await convertPdfToImages(file); 
+        const imageFormData = new FormData();
+        imageFormData.append('userEmail', localStorage.getItem('userEmail'));
+        
+        pdfImages.forEach((image, index) => {
+          imageFormData.append(`image${index}`, image);
+        });
+  
+        // Step 3: Upload the images to backend
+        await axios.post(`${baseUrl}/upload`, imageFormData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+         
+        });
+  
+        alert("Images uploaded successfully for further processing.");
+      } 
     } catch (error) {
       setErrorMessage('Error uploading the file. Please try again later.');
     } finally {
       setIsLoading(false);
     }
   };
+  
+  // Helper function to convert PDF to images
+  const convertPdfToImages = async (file) => {
+    const pdf = await pdfjsLib.getDocument(URL.createObjectURL(file)).promise;
+    const images = [];
+    const picaInstance = pica();
+  
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+      const page = await pdf.getPage(pageNum);
+      const viewport = page.getViewport({ scale: 2 });
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+  
+      await page.render({ canvasContext: context, viewport }).promise;
+  
+      const compressedCanvas = document.createElement('canvas');
+      compressedCanvas.width = viewport.width;
+      compressedCanvas.height = viewport.height;
+  
+      // Use pica to resize and compress the image
+      await picaInstance.resize(canvas, compressedCanvas);
+      const blob = await new Promise((resolve) => compressedCanvas.toBlob(resolve, 'image/png', 0.5)); // Compression quality set to 50%
+      
+      console.log(`Compressed Image Size: ${blob.size} bytes`);
+      images.push(blob);
+    }
+  
+    return images;
+  };
+  
+    
 
   const extractText = async (file) => {
     if (!file) {
@@ -121,7 +193,7 @@ const ChatBot = () => {
       console.error('The provided argument is not a Blob:', file);
       return;
     }
-
+  
     const reader = new FileReader();
     reader.onload = async () => {
       const typedArray = new Uint8Array(reader.result);
@@ -131,18 +203,35 @@ const ChatBot = () => {
         for (let i = 0; i < pdf.numPages; i++) {
           const page = await pdf.getPage(i + 1);
           const content = await page.getTextContent();
-          content.items.forEach(item => {
-            const lineText = item.str.trim();
-            if (lineText) textBlocks.push(lineText);
-          });
+          const pageText = content.items.map(item => item.str.trim()).join(' ');
+          
+          if (pageText.trim() === '') {
+            const scale = 1.5;
+            const viewport = page.getViewport({ scale });
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            await page.render({ canvasContext: context, viewport }).promise;
+            
+            const imageData = canvas.toDataURL('image/png');
+            const { data: { text } } = await Tesseract.recognize(imageData, 'eng');
+            if (text.trim() !== '') {
+              textBlocks.push(text.trim());
+            }
+          } else {
+            textBlocks.push(pageText);
+          }
         }
-        setExtractedText(textBlocks);
+        return textBlocks;
       } catch (error) {
         console.error('Error processing PDF:', error);
+        throw error;
       }
     };
     reader.onerror = (error) => {
       console.error('Error reading file:', error);
+      throw error;
     };
     reader.readAsArrayBuffer(file);
   };
@@ -185,7 +274,8 @@ const ChatBot = () => {
           fileName: activeFileName,
           question: response.data.question,
           answer: response.data.answer,
-          extractedText: extractedText
+          extractedText: extractedText,
+          userEmail: userEmail
         });
         console.log('extract text', extractedText)
 
@@ -263,7 +353,7 @@ const ChatBot = () => {
     localStorage.removeItem('activeFileName');
 
     // Navigate to the home page
-    navigate('/');
+    navigate('/chat');
   };
 
   const handleKeyPress = (event) => {
@@ -288,17 +378,54 @@ const ChatBot = () => {
     }
   };
 
+  // const handleHistory = async () => {
+  //   try {
+  //     const userEmail = localStorage.getItem('userEmail'); // Assuming you have saved the user's email in localStorage
+  
+  //     if (!userEmail) {
+  //       setError('User email not found. Please log in.');
+  //       return;
+  //     }
+  
+  //     const response = await axios.get(`${baseUrl}/get-filename-history`, {
+  //       params: {
+  //         userEmail, // Send the user's email in the query params
+  //       },
+  //     });
+  
+  //     setHistoryFiles(response.data); // Set the fetched files
+  //   } catch (err) {
+  //     console.error(err);
+  //     setError('Error fetching chat history.');
+  //   }
+  
+  //   setShowPopup(true);
+  // };
+  
   const handleHistory = async () => {
     try {
-      const response = await axios.get(`${baseUrl}/get-filename-history`);
-      setHistoryFiles(response.data);
+      const userEmail = localStorage.getItem('userEmail');
+  
+      if (!userEmail) {
+        setError('User email not found. Please log in.');
+        return;
+      }
+  
+      const response = await axios.get(`${baseUrl}/get-filename-history`, {
+        params: {
+          userEmail,
+        },
+      });
+  
+      // Reverse the order of files so that the latest appears first
+      setHistoryFiles(response.data.reverse());
     } catch (err) {
       console.error(err);
       setError('Error fetching chat history.');
     }
+  
     setShowPopup(true);
   };
-
   const handleHistoryFileClick = async (file) => {
     setActiveFileName(file.name);
     localStorage.setItem('activeFileName', file.name);
@@ -307,22 +434,16 @@ const ChatBot = () => {
       let extractedTextToSend;
 
       if (Array.isArray(file.extractedText)) {
-        // If it's an array, join it into a single string
         extractedTextToSend = file.extractedText.join('\n\n');
       } else if (typeof file.extractedText === 'string') {
-        // If it's already a string, use it as is
         extractedTextToSend = file.extractedText;
       } else {
         throw new Error('Extracted text is neither an array nor a string');
       }
 
       console.log('Sending extracted text:', extractedTextToSend);
-
-      // Send the extracted text to the /upload endpoint
       const response = await axios.post(`${baseUrl}/api`, { extractedText: extractedTextToSend });
-
       console.log('Upload response:', response.data);
-
       if (response.data && response.data.paragraphs) {
         setExtractedText(response.data.paragraphs);
       }
@@ -332,10 +453,25 @@ const ChatBot = () => {
     }
   };
 
+  const handleLogout = async () => {
+    try {         
+        await axios.post(`${baseUrl}/auth/logout`); 
+
+        localStorage.removeItem('userEmail'); 
+        window.location.href = '/login'; 
+    } catch (error) {
+        console.error('Error during logout:', error);
+   
+    }
+};
 
   const handleMenuClick = () => {
     setIsShowPopup(!isShowPopup)
   }
+
+  const toggleUserInfo = () => {
+    setShowUserInfo(!showUserInfo);
+};
 
   const handlFileName = (file) => {
     localStorage.setItem('activeFileName', file.name);
@@ -445,7 +581,37 @@ const ChatBot = () => {
             </div>
           </div>
           <div>
-            <img src='../Images/message.png' alt="Message" className='message-icon chat-history' />
+          {userData && (
+                        <>
+                            <img
+                                src={userData.profileImage || '../Images/Ellipse 232.png'} 
+                                alt="Profile"
+                                className="profile-pic"
+                            />
+                            {showUserInfo && (
+                              <div className="user-info"> 
+                              <div onClick={()=> {setShowUserInfo(false)}} className='cross-div'><p>X</p></div>
+                                 <div style={{display:'flex'}}>
+                                  <div  className='user-data'>
+                                  <p>{userData.name}</p>
+                                    <p>{userData.email}</p>
+                                    <div className='user-info-button'>
+                                    <button onClick={handleLogout}>Log Out</button>
+                                    <button onClick={() => {navigate('/profile-update')}}>Profile Edit</button>
+                                    </div>
+                                  </div>
+                                  <img src='../Images/Vector 1 (1).png' className='user-design-img'/>
+                                </div>
+                               </div>
+                            )}
+                        </>
+                    )}
+                     <img 
+                        src={showUserInfo ? "../Images/arrowup.png" : "../Images/arrowDown.png"} 
+                        style={{ width: '30px', cursor: 'pointer' }} 
+                        alt="Arrow" 
+                        onClick={toggleUserInfo} 
+                    />
           </div>
         </div>
       </div>
@@ -485,6 +651,8 @@ const ChatBot = () => {
                       <button className='mobile-new-chat-btn' onClick={handleSubmit}><img src='../Images/mobile-new-chat.png' /> New Chat</button>
                       <button className='mobile-new-chat-btn' onClick={handleHistory}><img src='../Images/mobile-history-chat.png' style={{ width: '20px' }} /> Chat History</button>
                       <button className='mobile-new-chat-btn' onClick={handleShowUpload}><img src='../Images/uploadedDocument.png' style={{ width: '20px' }} /> Upload Document</button>
+                      <button className='mobile-new-chat-btn' onClick={() => {navigate('/profile-update')}}><img src='../Images/profile-icon.png'/>Profile Edit</button>
+                      <button className='mobile-new-chat-btn'><img src='../Images/logout-icon.png'/>Log Out</button>
                     </div>
 
                   </div>
@@ -531,8 +699,6 @@ const ChatBot = () => {
                           <div>No files available</div>
                         )}
                       </div>
-
-
                     </div>
                   </div>
                 </div>
@@ -581,7 +747,6 @@ const ChatBot = () => {
       )}
 
       {/* Desktop Upload Document */}
-
       <div className='Document-upload d-document-upload '>
             <div className='close-popup-div-m'>
                         <img
@@ -619,8 +784,6 @@ const ChatBot = () => {
                 );
               })}
             </div>
-
-            
             <div className='text-s-field'>
               <div className='input_Btn'>
                 <div style={{ overflowY: 'auto',overflowX:'hidden', height: '70vh' }}>

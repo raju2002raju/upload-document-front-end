@@ -4,6 +4,10 @@
     box-sizing: border-box;
 }
 
+.home-text{
+  font-size: 12px;
+}
+
 .background-image{
     position: absolute;
     bottom: 0;
@@ -18,65 +22,25 @@
     margin-top: 50px;
 }
 
-.file-upload-div{
-    width:500px;
-    height: 600px;
-    z-index: 1;
-    background: #fff;;
-    box-shadow: 0 10px 10px rgb(0 0 0 / 0.2);
-    border-radius: 10px;
+.home-btn{
+  width: 100%;
+  margin: 10px;
+  height: 60px;
 }
 
-/* File Upload */
+.home-btn:hover{
+  background: #fff;
+  color: #000;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.home-container{
+  margin-top: 60px;
+}
 
 
-.upload-container {
-    max-width: 800px;
-    margin: 0 auto;
-    text-align: center;
-  }
-
-  .upload-container h3{
-    color: #e8e4f0;
-    text-transform: uppercase;
-  }
-  
-  .drag-file-area {
-    border: 2px dashed #cccccc;
-    border-radius: 10px;
-    padding: 40px;
-    margin: 20px;
-    position: relative;
-    text-align: center;
-    transition: background-color 0.2s ease;
-  }
-  
-  .drag-file-area.dragover {
-    background-color: #f0f0f0;
-  }
-  
-  .upload-icon {
-    font-size: 50px;
-    color: #999999;
-  }
-  
-  .dynamic-message {
-    font-size: 18px;
-    margin-top: 10px;
-    color: #333333;
-  }
-  
-  .browse-files {
-    cursor: pointer;
-    color: #007bff;
-    font-weight: bold;
-  }
-  
-  .default-file-input {
-    display: none;
-  }
-  
-  .upload-button {
+ .upload-button {
     background-color: #007bff;
     color: white;
     padding: 10px 20px;
@@ -93,7 +57,6 @@
   
   .error-message {
     color: red;
-    margin-top: 20px;
   }
   
   .extracted-text {
@@ -105,24 +68,16 @@
     padding: 10px;
   }
   
-  .file-info{
-    border: 1px solid;
-    width: 87%;
-    border-radius: 10px;
-    background: #007bff;
-    padding: 10px;
-    color: #fff;
-    display: flex;
-    margin: 21px;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
+
+  /* profile pic */
+
+  .profile-pic{
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
   }
 
-  .file-upload-div h1{
-    color: #163366 ;
-    margin: 20px;
-  }
+
 
   .file_upload_container{
     width: 600px;
@@ -531,6 +486,199 @@
  }
 
 
+ /* Profile */
+
+ .user-info{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  width: 500px;
+  height: 300px;
+  background: #163366;
+  color: #fff;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  flex-direction: column;
+  text-align: center;
+}
+
+.cross-div{
+  width: 30px;
+  height: 30px;
+  background: #fff;
+  border-radius: 50%;
+  color: #000;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 12px;
+  cursor: pointer;
+}
+
+.user-design-img{
+  width: 500px;
+}
+.user-info-button{
+  display: flex;
+  gap: 10px;
+}
+
+.user-data{
+  position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    width: 400px;
+}
+
+.user-data p{
+  font-size: 20px;
+  margin: 10px 0px;
+}
+ 
+.user-info-button button{
+  width: 100%;
+  padding: 13px 7px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+ .profile{
+  align-items: center;
+ }
+
+ .profile p{
+  font-size: 18px;
+  font-weight: 700;
+
+ }
+
+ .profile-upload-document p{
+  margin: 0px;
+  font-size: 40px;
+  font-weight: bold;
+  margin-bottom: 20px;
+ }
+
+.d-profile-container{
+  display: flex;
+  align-items: center;
+  gap: 50px;
+}
+
+.profile-conatiner{
+  justify-content: start;
+  padding: 80px;
+}
+
+
+.profile-image-container {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 50%;
+  
+}
+
+.profile-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.edit-icon {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background-color: #ffffff;
+  border-radius: 50%;
+  padding: 5px;
+  cursor: pointer;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 600px;
+  margin: 0 auto;
+}
+
+.input_w_500 {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+.search-div-button {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.search-div-button button {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 390px;
+}
+
+.search-div-button button:hover {
+  background-color: #2563eb;
+}
+
+.edit-icon{
+  width: 40px;
+  height: 40px;
+}
+
+@media (max-width: 768px) {
+  .d-flex {
+    flex-direction: column;
+  }
+
+  .file_upload_container {
+    width: 100%;
+    height: auto;
+  }
+
+  .profile-info {
+    width: 90%;
+  }
+  .d-profile-container{
+    flex-direction: column;
+      padding-top: 30px;
+  }
+
+  .search-div-button button {
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 90%;
+  }
+
+  .profile-conatiner{
+    padding: 0px;
+  }
+}
+
 
 
 /*  Mobile Vesrion */
@@ -590,7 +738,7 @@
 
   .container {
     flex-direction: column;
-    margin-top: 20px;
+
   }
 
   .file-upload-div {
@@ -599,35 +747,10 @@
     margin: 20px;
   }
 
-  /* File Upload */
-  .upload-container {
-    max-width: 90%;
-    margin: 0 auto;
-  }
-
-  .drag-file-area {
-    padding: 20px;
-    margin: 10px;
-  }
-
-  .upload-icon {
-    font-size: 40px;
-  }
-
-  .dynamic-message {
-    font-size: 16px;
-  }
-
   .upload-button {
     width: 100%;
   }
 
-  .file-info {
-    width: 100%;
-    margin: 10px;
-    padding: 10px;
-    font-size: 14px;
-  }
 
   .file_upload_container {
     width: 100%;
@@ -838,8 +961,9 @@
   gap: 7px;
 }
 
-
-
 }
+
+
+/* Login, Signup, Forgot Password, otp, verification, changed password mobile css  */
 
 
