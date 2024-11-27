@@ -17,8 +17,8 @@ function App() {
   return (
   <BrowserRouter>
     <Routes>
-      <Route path='/' element={<Home/>} />
-      <Route path='/chat' element={<UploadFiles/>}/>
+      // <Route path='/' element={<Home/>} />
+      <Route path='/' element={<UploadFiles/>}/>
       <Route path="/chatbot/:id" element={<ChatBot/>} />
       <Route path='/chat-history' element={<ChatHistory/>} />
       <Route  path='/login' element={<Login/>} />
