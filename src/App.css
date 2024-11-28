@@ -963,7 +963,48 @@
 
 }
 
+.open_ai_btn{
+  background-color: #007bffab;
+  color: #fff;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+}
 
-/* Login, Signup, Forgot Password, otp, verification, changed password mobile css  */
+.popup-content {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5); /* Dark background with transparency */
+  z-index: 9999;
+}
 
+.popup-container{
+  padding: 20px;
+  width: 500px;
+  background-color: white;
+  border-radius: 5px;
+}
 
+.popup-btn{
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.cut-btn{
+  width: 30px;
+  height: 30px;
+  background-color: #000;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 999px;
+  cursor: pointer;
+}

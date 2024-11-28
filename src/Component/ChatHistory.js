@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { baseUrl } from './Config';
 
 const ChatHistory = ({ fileName }) => {
   const [chatHistory, setChatHistory] = useState([]);
@@ -10,7 +11,7 @@ const ChatHistory = ({ fileName }) => {
   useEffect(() => {
     const fetchChatHistory = async () => {
       try {
-        const response = await axios.get(`https://upload-document-back-end.onrender.com/get-chat-history/${fileName}`, {
+        const response = await axios.get(`${baseUrl}/get-chat-history/${fileName}`, {
           headers: { 
             'Content-Type': 'application/json',
             'User-Email': userEmail // Add the email to the headers

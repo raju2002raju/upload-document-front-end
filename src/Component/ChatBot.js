@@ -7,7 +7,8 @@ import mammoth from 'mammoth';
 import ChatHistory from './ChatHistory';
 import { v4 as uuidv4 } from 'uuid';
 import pica from 'pica';
-// import pdfjsLib from 'pdfjs-dist';
+import OpenAiKeyManager from './OpenAi/OpenAiKeyManager';
+import { baseUrl } from './Config';
 
 const ChatBot = () => {
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -27,9 +28,8 @@ const ChatBot = () => {
   const [showUpload, setShowUpload] = useState();
   const [userData, setUserData] = useState(null);
   const [showUserInfo, setShowUserInfo] = useState(false);
+  const [showKeyInput, setShowKeyInput] = useState(false);
 
-  const baseUrl = 'https://upload-document-back-end.onrender.com';
-  const CHUNK_SIZE = 1024 * 1024;
   
   const navigate = useNavigate();
   const getFileName = localStorage.getItem('activeFileName')
@@ -606,12 +606,7 @@ const ChatBot = () => {
                             )}
                         </>
                     )}
-                     <img 
-                        src={showUserInfo ? "../Images/arrowup.png" : "../Images/arrowDown.png"} 
-                        style={{ width: '30px', cursor: 'pointer' }} 
-                        alt="Arrow" 
-                        onClick={toggleUserInfo} 
-                    />
+                     <button onClick={() => setShowKeyInput(true)} className='open_ai_btn'>Update Open AI Key</button>
           </div>
         </div>
       </div>
@@ -841,6 +836,24 @@ const ChatBot = () => {
           </div>
         </div>
       </div>
+      {showKeyInput && (
+  <div className='popup-content'>
+    <div className="popup-container">
+    <div className="">
+      <div className="popup-btn">
+        <p>Enter Your Open AI KEY Here</p>
+        <p
+          onClick={() => setShowKeyInput(false)}
+          className="cut-btn"
+        >
+          X
+        </p>
+      </div>
+      <OpenAiKeyManager />
+    </div>
+  </div>
+  </div>
+)}
     </div>
   );
 };
