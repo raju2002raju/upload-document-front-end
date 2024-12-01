@@ -1,0 +1,58 @@
+/* customQuill.css */
+.ql-container {
+    font-family: 'Arial', sans-serif;
+    background-color: #fff;
+    border: 1px solid #E2E8F0;
+  }
+  
+  .ql-toolbar {
+    background-color: #fff;
+    border-top-right-radius: 10px 10px;
+    border-top-left-radius: 10px 10px;
+    border: 1px solid #E2E8F0;
+  }
+
+  
+  .ql-editor{
+    line-height: 2.2;
+  }
+
+
+
+  .inputfield{
+    width: 100%;
+    padding: 10px;
+    outline: none;
+    border-radius: 10px;
+  }
+
+  .btn{
+    padding: 10px 20px;
+    color: #fff;
+    border-radius: 5px;
+
+  }
+
+  .save-btn{
+    background-color: rgb(78, 180, 78);
+    margin-right: 10px;
+  }
+
+  .cancel-btn{
+    background-color: gray;
+  }
+
+  .remove-btn{
+    background-color: rgb(71, 158, 193);
+    margin-right: 10px;
+  }
+
+  .editor-container{
+    background-color: #F8FAFC;
+    width: 900px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+    height: 640px;
+  }
